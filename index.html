@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Downloader</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1e90ff;
+            --secondary: #1c86ee;
+            --dark: #1a1a2e;
+            --darker: #0f0f1a;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --success: #28a745;
+            --danger: #dc3545;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+        
+        .platforms {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .platform {
+            background: rgba(30, 144, 255, 0.1);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(30, 144, 255, 0.2);
+        }
+        
+        .input-group {
+            display: flex;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .url-input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .download-btn {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border: none;
+            padding: 0 25px;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .download-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .download-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none; /* Hidden by default */
+        }
+        
+        .loading {
+            display: none; /* Hidden by default */
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid rgba(220, 53, 69, 0.5);
+            color: #f8d7da;
+        }
+
+        .results {
+            margin-top: 30px;
+            animation: fadeIn 0.5s ease;
+            display: none; /* Hidden by default */
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .media-info {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .thumbnail img {
+            width: 160px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .media-details h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+        
+        .media-details p {
+            margin-bottom: 8px;
+            color: #ccc;
+        }
+
+        .download-options {
+            margin-top: 20px;
+        }
+
+        .quality-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .quality-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .quality-btn:hover {
+            background: var(--primary);
+        }
+
+        .contact-links {
+            text-align: center;
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            color: var(--gray);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 600px) {
+            .input-group { flex-direction: column; }
+            .download-btn { padding: 15px; border-radius: 0 0 10px 10px; }
+            .url-input { border-radius: 10px 10px 0 0; }
+            .media-info { flex-direction: column; align-items: center; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="logo"><i class="fas fa-cloud-download-alt"></i> Social Media Downloader</h1>
+            <p class="tagline">Download Videos And Audio From 9 Platforms With High Quality</p>
+            <div class="platforms">
+                <span class="platform">YouTube</span>
+                <span class="platform">TikTok</span>
+                <span class="platform">Instagram</span>
+                <span class="platform">Facebook</span>
+                <span class="platform">Snapchat</span>
+                <span class="platform">SoundCloud</span>
+                <span class="platform">Reddit</span>
+                <span class="platform">Twitter</span>
+                <span class="platform">Douyin</span>
+            </div>
+        </header>
+        
+        <main>
+            <div class="input-group">
+                <input type="text" class="url-input" placeholder="Paste Your Media URL Here..." id="url-input">
+                <button class="download-btn" id="download-btn">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Processing your request...</p>
+            </div>
+            
+            <div class="status error" id="error">
+                <i class="fas fa-exclamation-triangle"></i> <span id="error-message"></span>
+            </div>
+            
+            <div class="results" id="results">
+                <div class="media-info">
+                    <div class="thumbnail">
+                        <img src="" alt="Media thumbnail" id="thumbnail">
+                    </div>
+                    <div class="media-details">
+                        <h3 id="media-title"></h3>
+                        <p id="media-author"></p>
+                        <p id="media-duration"></p>
+                        <p id="media-platform"></p>
+                    </div>
+                </div>
+                <div class="download-options">
+                    <h4>Available Downloads:</h4>
+                    <div class="quality-buttons" id="quality-buttons">
+                        </div>
+                </div>
+            </div>
+
+            <div class="contact-links">
+                <a href="https://wa.me/923259948281" target="_blank" class="quality-btn"><i class="fab fa-whatsapp"></i> WhatsApp Contact</a>
+                <a href="https://t.me/muhammadmakkiyt" target="_blank" class="quality-btn"><i class="fab fa-telegram"></i> Muhammad Makki Channel</a>
+                <a href="https://t.me/ahm7tech" target="_blank" class="quality-btn"><i class="fas fa-rocket"></i> Ahm7Tech Channel</a>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Created By Ahm7xMakki • Supporting 9 Platforms With Premium Quality</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlInput = document.getElementById('url-input');
+            const downloadBtn = document.getElementById('download-btn');
+            const loadingDiv = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+            const errorMessageSpan = document.getElementById('error-message');
+            const resultsDiv = document.getElementById('results');
+            
+            const thumbnailImg = document.getElementById('thumbnail');
+            const mediaTitle = document.getElementById('media-title');
+            const mediaAuthor = document.getElementById('media-author');
+            const mediaDuration = document.getElementById('media-duration');
+            const mediaPlatform = document.getElementById('media-platform');
+            const qualityButtonsDiv = document.getElementById('quality-buttons');
+
+            downloadBtn.addEventListener('click', handleDownload);
+            urlInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleDownload();
+                }
+            });
+
+            async function handleDownload() {
+                const url = urlInput.value.trim();
+                if (!url) {
+                    showError('Please enter a URL.');
+                    return;
+                }
+
+                // Reset UI
+                hideError();
+                resultsDiv.style.display = 'none';
+                loadingDiv.style.display = 'block';
+                downloadBtn.disabled = true;
+                downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                
+                const API_ENDPOINT = `https://batgpt.vercel.app/api/alldl?url=${encodeURIComponent(url)}`;
+
+                try {
+                    const response = await fetch(API_ENDPOINT);
+                    if (!response.ok) {
+                        throw new Error(`Server responded with status: ${response.status}`);
+                    }
+                    const data = await response.json();
+
+                    if (data.success && data.mediaInfo) {
+                        displayResults(data.mediaInfo);
+                    } else {
+                        throw new Error(data.message || 'Failed to get media information.');
+                    }
+                } catch (err) {
+                    showError(err.message || 'An unknown error occurred.');
+                } finally {
+                    loadingDiv.style.display = 'none';
+                    downloadBtn.disabled = false;
+                    downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';
+                }
+            }
+            
+            function displayResults(mediaInfo) {
+                thumbnailImg.src = mediaInfo.coverImage || 'https://via.placeholder.com/160x90?text=No+Image';
+                mediaTitle.textContent = mediaInfo.title || 'No Title';
+                mediaAuthor.innerHTML = mediaInfo.author ? `<i class="fas fa-user"></i> ${mediaInfo.author}` : '';
+                mediaDuration.innerHTML = mediaInfo.duration ? `<i class="fas fa-clock"></i> ${mediaInfo.duration}` : '';
+                mediaPlatform.innerHTML = mediaInfo.platform ? `<i class="fab fa-${mediaInfo.platform.toLowerCase()}"></i> ${mediaInfo.platform}` : '';
+                
+                qualityButtonsDiv.innerHTML = ''; // Clear previous buttons
+
+                // Add main video/audio links if they exist
+                if (mediaInfo.videoUrl) {
+                    createButton(mediaInfo.videoUrl, 'Video (Best)', 'fa-file-video');
+                }
+                if (mediaInfo.audioUrl) {
+                    createButton(mediaInfo.audioUrl, 'Audio (Best)', 'fa-file-audio');
+                }
+
+                // Add buttons from the qualities array
+                if (mediaInfo.qualities && mediaInfo.qualities.length > 0) {
+                    mediaInfo.qualities.forEach(q => {
+                        createButton(q.url, q.quality, 'fa-film');
+                    });
+                }
+
+                resultsDiv.style.display = 'block';
+            }
+
+            function createButton(url, text, iconClass) {
+                const button = document.createElement('a');
+                button.href = url;
+                button.className = 'quality-btn';
+                button.target = '_blank'; // Open in new tab
+                button.innerHTML = `<i class="fas ${iconClass}"></i> ${text}`;
+                qualityButtonsDiv.appendChild(button);
+            }
+
+            function showError(message) {
+                errorMessageSpan.textContent = message;
+                errorDiv.style.display = 'block';
+            }
+
+            function hideError() {
+                errorDiv.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+  </html>
